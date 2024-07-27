@@ -1,17 +1,21 @@
 {
-  "name": "functions",
+  "name": "cloud-storage-file-browser",
   "version": "0.1.0",
-  "description": "Functions for the web app",
+  "description": "Functions for the web app cloud-storage-file-browser",
   "main": "fileApi.js",
-  "author": "Benjamin Ashbaugh",
+  "author": "Miroslav Behan",
   "license": "MIT",
   "scripts": {
-    "start": "functions-framework"
+    "start": "functions-framework --target=fileApi",
+    "env-start": "dotenv -e .env -- npm start"
   },
   "dependencies": {
-    "@google-cloud/functions-framework": "^1.7.1",
-    "@google-cloud/storage": "^5.3.0",
-    "express": "^4.17.1",
-    "google-auth-library": "^6.1.3"
+    "@google-cloud/functions-framework": "^3.1.0",
+    "@google-cloud/storage": "^6.0.0",
+    "google-auth-library": "^8.0.0"
+  },
+  "keywords": [],
+  "devDependencies": {
+    "dotenv-cli": "^7.4.2"
   }
 }
