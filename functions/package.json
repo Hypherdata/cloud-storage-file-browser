@@ -2,11 +2,11 @@
   "name": "cloud-storage-file-browser",
   "version": "0.1.0",
   "description": "Functions for the web app cloud-storage-file-browser",
-  "main": "fileApi.js",
+  "main": "index.js",
   "author": "Miroslav Behan",
   "license": "MIT",
   "scripts": {
-    "start": "functions-framework --target=fileApi",
+    "start": "functions-framework --target=cloud-storage-file-browser-api",
     "env-start": "dotenv -e .env -- npm start"
   },
   "dependencies": {

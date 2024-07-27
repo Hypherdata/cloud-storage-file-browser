@@ -18,7 +18,7 @@ const DEFAULT_SETTINGS = {
   cdnAdmins: ''
 };
 
-const bucket = new Storage().bucket(process.env.CDN_BUCKET_NAME);
+const bucket = new Storage({ authClient: oauthClient }).bucket(process.env.CDN_BUCKET_NAME);
 const CDN_URL = process.env.CDN_URL || null;
 const DASHBOARD_ORIGIN = process.env.DASHBOARD_ORIGIN || '*';
 
@@ -64,16 +64,27 @@ async function auth(req) {
       audience: process.env.OAUTH_CLIENT_ID
     })).getPayload().email;
 
-    if (!CDN_ADMINS.includes(userEmail)) throw new Error("Unauthorized");
+    // Extract the access token from the Authorization header
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      throw new Error("Unauthorized: No token provided");
+    }
+    const accessToken = authHeader.split('Bearer ')[1];
 
-    return true;
+    // Create an OAuth2Client with the access token
+    const oauth2Client = new OAuth2Client();
+    oauth2Client.setCredentials({ access_token: accessToken });
+
+    if (!CDN_ADMINS.includes(userEmail)) throw new Error("Unauthorized not included in CDN_ADMINS");
+
+    return oauth2Client;
   } catch (err) {
     console.error(err);
     throw new Error("Unauthorized");
   }
 }
 
-functions.http('fileApi', async (req, res) => {
+functions.http('cloud-storage-file-browser-api', async (req, res) => {
   res.set('Access-Control-Allow-Origin', '*');
   res.set('Access-Control-Allow-Credentials', 'true');
 
@@ -84,8 +95,9 @@ functions.http('fileApi', async (req, res) => {
     return res.status(204).send('');
   }
 
+  let oauth2Client = null
   try {
-    await auth(req);
+    oauth2Client = await auth(req);
   } catch (error) {
     return res.status(403).send(error.message);
   }
@@ -94,6 +106,9 @@ functions.http('fileApi', async (req, res) => {
   const method = req.method;
 
   try {
+
+    const bucket = new Storage({ authClient: oauthClient }).bucket(process.env.CDN_BUCKET_NAME);
+
     switch (`${method} ${path}`) {
       case 'GET /get-files':
         const [files] = await bucket.getFiles();

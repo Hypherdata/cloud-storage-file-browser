@@ -69,7 +69,7 @@ Then, under `environment variables` you'll need to add 5 runtime variables:
 ![env variables](https://s.bweb.app/file-manager-screenshots/function-env-variables.png)
 
 Finally, click next to add the code. It's a single function with an Express.js API.
-You can clone this repo now and get the two small files from the `/functions` directory, or you can just copy and paste the two files from here: [`package.json`](/functions/package.json), [`fileApi.js`](/functions/fileApi.js). Also, make sure to set the entry point to `fileApi`.
+You can clone this repo now and get the two small files from the `/functions` directory, or you can just copy and paste the two files from here: [`package.json`](/functions/package.json), [`index.js`](/functions/fileApi.js). Also, make sure to set the entry point to `fileApi`.
 
 ![the function code](https://s.bweb.app/file-manager-screenshots/functions-code.png)
 

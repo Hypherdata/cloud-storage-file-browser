@@ -9,6 +9,8 @@ import FileUploadModal from '../FileUploadModal/FileUploadModal'
 import FolderCreationModal from '../FolderCreationModal/FolderCreationModal'
 import SettingsModal from '../SettingsModal/SettingsModal'
 import api from '../../api/storage'
+import { GoogleOAuthProvider } from '@react-oauth/google';
+import config from "../../config";
 
 function App() {
   const [idToken, setIdToken] = useState('')
@@ -31,6 +33,7 @@ function App() {
           openSettings={() => setSettingsOpen(true)}
         />
       </nav>
+        <GoogleOAuthProvider clientId={config.googleClientId}>
       <Auth setIdToken={(t) => {
         api.idToken = t
         setIdToken(t)
@@ -71,6 +74,8 @@ function App() {
         draggable
         pauseOnHover
       />
+        </GoogleOAuthProvider>
+
     </div>
   );
 }

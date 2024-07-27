@@ -3,8 +3,12 @@ yarn build
 # create bucket
 # gsutil mb -p hypherdata-cloud-prod gs://hd-cloud-storage-file-browser
 
+# Enable versioning
+#gsutil versioning set on gs://hd-cloud-storage-file-browser
+
 # deploy to bucket
-gsutil -m rsync -r build gs://hd-cloud-storage-file-browser
+#gsutil -m rsync -r build gs://hd-cloud-storage-file-browser # not works because of cache
+gsutil -m cp -r build gs://hd-cloud-storage-file-browser
 
 # set public access
 #gsutil iam ch allUsers:objectViewer gs://hd-cloud-storage-file-browser
