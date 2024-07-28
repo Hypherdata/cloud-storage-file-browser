@@ -1,3 +1,5 @@
+APP=cloud-storage-file-browser
+
 yarn build
 
 # create bucket
@@ -6,9 +8,19 @@ yarn build
 # Enable versioning
 #gsutil versioning set on gs://hd-cloud-storage-file-browser
 
+#gcloud compute url-maps invalidate-cdn-cache $APP-url-map --path "/*"
+
+#gcloud compute backend-buckets update cloud-storage-file-browser-backend
+
 # deploy to bucket
 #gsutil -m rsync -r build gs://hd-cloud-storage-file-browser # not works because of cache
-gsutil -m cp -r build gs://hd-cloud-storage-file-browser
+
+gsutil -m cp -r build/* gs://hd-$APP
+
+gsutil -m setmeta -h "Cache-Control:public, max-age=0" -r gs://hd-$APP/
+
+#gsutil ls -L gs://hd-cloud-storage-file-browser/
+
 
 # set public access
 #gsutil iam ch allUsers:objectViewer gs://hd-cloud-storage-file-browser

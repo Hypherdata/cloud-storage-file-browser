@@ -5,5 +5,5 @@ export default {
   APIEndpoint: 'https://us-central1-hypherdata-cloud-prod.cloudfunctions.net/cloud-storage-file-browser-api', // The URL to the cloud function
   CDN_URL: 'https://cloud-storage-file-browser.hypherdata.com', // The base URL to your CDN or bucket. This might be a custom subdomain or https://bucket-name.storage.googleapis.com/ if you don't have a CDN.
   BucketUrl: 'https://storage.googleapis.com/hd-cloud-storage-file-browser', // This is used to bypass the cache on your CDN. ONLY replace the YOUR-BUCKET-NAME part with the name of your bucket.
-  appName: 'cloud-storage-file-browser' // The name that appears at the top of the app menu.
+  appName: 'Hypherdata.com - File Exchange' // The name that appears at the top of the app menu.
 }

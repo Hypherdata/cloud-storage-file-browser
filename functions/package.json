@@ -12,7 +12,8 @@
   "dependencies": {
     "@google-cloud/functions-framework": "^3.1.0",
     "@google-cloud/storage": "^6.0.0",
-    "google-auth-library": "^8.0.0"
+    "google-auth-library": "^8.0.0",
+    "path": "^0.12.7"
   },
   "keywords": [],
   "devDependencies": {

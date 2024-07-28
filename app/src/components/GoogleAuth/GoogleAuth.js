@@ -9,6 +9,7 @@ const GoogleAuth = ({ setIdToken, setProfile }) => {
 
   const onSuccess = (credentialResponse) => {
     const credentialResponseDecoded = jwtDecode.jwtDecode(credentialResponse.credential);
+    console.log(credentialResponseDecoded);
     setIdToken(credentialResponse.credential);
     setProfile({
       name: credentialResponseDecoded.name,

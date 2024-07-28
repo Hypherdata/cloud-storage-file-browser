@@ -2,8 +2,9 @@ import React, { useState } from 'react'
 import './FileCard.css'
 import { Card, List, Button, Icon, Dropdown, Checkbox, Dimmer } from 'semantic-ui-react'
 import { getIconByMIMEType } from '../../util/fileutil'
+import TiffThumbnail from './TiffThumbnail';
 
-const FileCard = ({ cardType, isFolder, name, size, fileType, lastMod, isDimmed, checkIsPublic, onDelete, onRename, onMove, onClickItem, onDownload, onSetPublic}) => {
+const FileCard = ({ cardType, isFolder, path, name, size, fileType, lastMod, isDimmed, checkIsPublic, onDelete, onRename, onMove, onClickItem, onDownload, onSetPublic, isAdmin = false}) => {
   const [isPublic, setIsPublic] = useState(false)
 
   const fileIcon = getIconByMIMEType(fileType, isFolder)
@@ -11,7 +12,11 @@ const FileCard = ({ cardType, isFolder, name, size, fileType, lastMod, isDimmed,
   if (cardType === 'list') { // File card for list view
     return (
       <List.Item className={isFolder ? 'folder-card' : ''}>
-        <List.Icon name={fileIcon} size='large' verticalAlign='middle' />
+        {/*{fileType === 'image/tiff' || name.endsWith("tif") ? (*/}
+        {/*    <TiffThumbnail filePath={path} />*/}
+        {/*) : (*/}
+            <List.Icon name={fileIcon} size='large' verticalAlign='middle' />
+        {/*)}*/}
         <List.Content>
           <Dimmer.Dimmable dimmed={isDimmed}>
             <Dimmer active={isDimmed} inverted/>
@@ -21,11 +26,11 @@ const FileCard = ({ cardType, isFolder, name, size, fileType, lastMod, isDimmed,
                 <Dropdown.Menu>
                   {/*<Dropdown.Item icon='cloud download' text='Download' />*/}
                   <Dropdown.Item icon='download' text='Download' disabled={isFolder} onClick={() => onDownload(isPublic)} />
-                  <Dropdown.Item icon={isPublic ? 'lock' : 'unlock'} text={isPublic ? 'Make private' : 'Make public'} disabled={isFolder} onClick={() => {onSetPublic(!isPublic)}}/>
+                  {/*<Dropdown.Item icon={isPublic ? 'lock' : 'unlock'} text={isPublic ? 'Make private' : 'Make public'} disabled={isFolder} onClick={() => {onSetPublic(!isPublic)}}/>*/}
                   <Dropdown.Divider/>
-                  <Dropdown.Item icon='arrow right' text='Move' disabled={isFolder} onClick={onMove} />
-                  <Dropdown.Item icon='edit' text='Rename' disabled={isFolder} onClick={onRename} />
-                  <Dropdown.Item icon='trash' text='Delete' onClick={onDelete} />
+                  {isAdmin && <Dropdown.Item icon='arrow right' text='Move' disabled={isFolder} onClick={onMove} />}
+                  {isAdmin && <Dropdown.Item icon='edit' text='Rename' disabled={isFolder} onClick={onRename} />}
+                  {isAdmin && <Dropdown.Item icon='trash' text='Delete' onClick={onDelete} />}
                 </Dropdown.Menu>
               </Dropdown>
             </List.Header>
@@ -47,9 +52,9 @@ const FileCard = ({ cardType, isFolder, name, size, fileType, lastMod, isDimmed,
             <a href='#' onClick={onClickItem}>{name}</a>
             <Dropdown onClick={async () => setIsPublic(await checkIsPublic())} icon='caret down'>
               <Dropdown.Menu>
-                <Dropdown.Item icon={isPublic ? 'lock' : 'unlock'} text={isPublic ? 'Make private' : 'Make public'} disabled={isFolder} onClick={() => {onSetPublic(!isPublic)}}/>
-                <Dropdown.Item icon='arrow right' text='Move' disabled={isFolder} onClick={onMove} />
-                <Dropdown.Item icon='edit' text='Rename' disabled={isFolder} onClick={onRename} />
+                {/*<Dropdown.Item icon={isPublic ? 'lock' : 'unlock'} text={isPublic ? 'Make private' : 'Make public'} disabled={isFolder} onClick={() => {onSetPublic(!isPublic)}}/>*/}
+                {isAdmin && <Dropdown.Item icon='arrow right' text='Move' disabled={isFolder} onClick={onMove} />}
+                {isAdmin && <Dropdown.Item icon='edit' text='Rename' disabled={isFolder} onClick={onRename} />}
                 {/*<Dropdown.Item icon='trash' text='Delete' onClick={onDelete} />*/}
               </Dropdown.Menu>
             </Dropdown>
@@ -73,10 +78,10 @@ const FileCard = ({ cardType, isFolder, name, size, fileType, lastMod, isDimmed,
               <Icon name='linkify'/>
             </Button>
             </>}
-
-            <Button basic compact size='mini' color='red' onClick={onDelete}>
-              <Icon name='trash alternate outline'/>
-            </Button>
+            {isAdmin && <Button basic compact size='mini' color='red' onClick={onDelete}>
+                <Icon name='trash alternate outline'/>
+              </Button>
+            }
           </Button.Group>
         </Card.Content>
       </Card> }

@@ -13,11 +13,17 @@ const reqConfig = obj => ({
 
 export default {
   idToken: null,
-  getFiles () {
-    return axios.get('/get-files', reqConfig(this))
+  getFiles (path, pageToken) {
+    console.log("getFiles with path: ", path);
+    console.log("getFiles with pageToken: ", pageToken);
+    if (!pageToken) {
+      return axios.get(`/get-files?path=${path}`, reqConfig(this))
+    } else {
+      return axios.get(`/get-files?path=${path}&pageToken=${pageToken}`, reqConfig(this))
+    }
   },
   checkIsPublic (path) {
-    return axios.head(config.BucketUrl + path + `?bc_timestamp=${new Date().getTime()}`) // Append unused query param to ensure that browser cache is bypassed.
+    return axios.head(config.BucketUrl + "/" + path + `?bc_timestamp=${new Date().getTime()}`) // Append unused query param to ensure that browser cache is bypassed.
       .then(res => res.status === 200)
       .catch(res => false)
   },
