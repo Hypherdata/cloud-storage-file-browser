@@ -22,6 +22,13 @@ export default {
       return axios.get(`/get-files?path=${path}&pageToken=${pageToken}`, reqConfig(this))
     }
   },
+  downloadFolder (folderPath) {
+    try {
+      return axios.get(`/download-folder?path=${encodeURIComponent(folderPath)}`, reqConfig(this))
+     } catch (error) {
+        console.error('Error downloading folder:', error);
+    }
+  },
   checkIsPublic (path) {
     return axios.head(config.BucketUrl + "/" + path + `?bc_timestamp=${new Date().getTime()}`) // Append unused query param to ensure that browser cache is bypassed.
       .then(res => res.status === 200)

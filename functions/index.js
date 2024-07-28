@@ -2,6 +2,8 @@ const { Storage } = require('@google-cloud/storage');
 const { OAuth2Client } = require('google-auth-library');
 const functions = require('@google-cloud/functions-framework');
 const path = require('path');
+const archiver = require('archiver');
+const stream = require('stream');
 
 console.log(process.env);
 
@@ -157,6 +159,33 @@ async function listFilesAndDirs(prefix, pageToken = null, pageSize = 100) {
   };
 }
 
+async function downloadFolder(folderPath) {
+  console.log("downloadFolder with folderPath: ", folderPath);
+  const [files] = await bucket.getFiles({ prefix: folderPath });
+
+  console.log("files:", files);
+  const archive = archiver('zip', {
+    zlib: { level: 9 } // Sets the compression level.
+  });
+
+  const passThrough = new stream.PassThrough();
+
+  archive.pipe(passThrough);
+
+  for (const file of files) {
+    console.log("file:", file);
+    const filename = file.name.slice(folderPath.length);
+    const fileStream = file.createReadStream();
+    archive.append(fileStream, { name: filename });
+  }
+
+  console.log("finalizing archive");
+  await archive.finalize();
+
+  console.log("returning passThrough");
+  return passThrough;
+}
+
 functions.http('cloud-storage-file-browser-api', async (req, res) => {
   res.set('Access-Control-Allow-Origin', '*');
   res.set('Access-Control-Allow-Credentials', 'true');
@@ -200,6 +229,19 @@ functions.http('cloud-storage-file-browser-api', async (req, res) => {
           files: items,
           nextPageToken: nextPageToken
         });
+      case 'GET /download-folder':
+        const folderPath = req.query.path;
+        if (!folderPath) {
+          return res.status(400).send('Folder path is required');
+        }
+
+        const downloadStream = await downloadFolder(folderPath);
+
+        res.setHeader('Content-Type', 'application/zip');
+        res.setHeader('Content-Disposition', `attachment; filename="${folderPath.split('/').pop()}.zip"`);
+
+        downloadStream.pipe(res);
+        return res;
 
       // case 'POST /set-public':
       //   await bucket.file(req.body.filepath).makePublic();

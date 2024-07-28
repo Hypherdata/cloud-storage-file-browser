@@ -127,6 +127,25 @@ const FileExplorer = ({ idToken, profile, setExplorerPath, doRefresh, didRefresh
     setFileToMove({})
   }
 
+  const downloadFolder = async (folderPath) => {
+    api.downloadFolder(folderPath)
+      .then(async response=> {
+          if (response.ok) {
+              const blob = await response.blob();
+              const url = window.URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.style.display = 'none';
+              a.href = url;
+              a.download = `${folderPath.split('/').pop()}.zip`;
+              document.body.appendChild(a);
+              a.click();
+              window.URL.revokeObjectURL(url);
+          } else {
+              console.error('Failed to download folder');
+          }
+      })
+  };
+
   const fileCards = () => {
     return filesInPath(path, ignoringFileStructure).map((file) => (
             <FileCard
@@ -188,12 +207,16 @@ const FileExplorer = ({ idToken, profile, setExplorerPath, doRefresh, didRefresh
                   }
                 }}
                 onDownload={async (publicDownload) => {
-                  if (publicDownload) {
-                    window.open(file.downloadLink, '_blank')
+                  if (file.isFolder) {
+                      await downloadFolder(file.path)
                   } else {
-                    console.log("non public download get sharable url", file.path)
-                    const { url } = await api.getSharableUrl(file.path, true)
-                    window.open(url, '_blank')
+                      if (publicDownload) {
+                          window.open(file.downloadLink, '_blank')
+                      } else {
+                          console.log("non public download get sharable url", file.path)
+                          const {url} = await api.getSharableUrl(file.path, true)
+                          window.open(url, '_blank')
+                      }
                   }
                 }}
                 checkIsPublic={() => api.checkIsPublic(file.path)}
