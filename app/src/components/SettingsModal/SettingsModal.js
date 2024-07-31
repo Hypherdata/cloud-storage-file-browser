@@ -71,6 +71,20 @@ const SettingsModal = ({ open, closeModal }) => {
                 <input value={settings.cdnAdmins}/>
               </Input>
             </Form.Field>
+            <Form.Field>
+              <label>CDN Uploaders</label>
+              <p>Every email you add to this comma-separated list <strong>(no spaces)</strong> will have <strong>upload files and folders to the storage bucket</strong>.They will be able to sign into this dashboard with their Google account.</p>
+              <Input onChange={e => setSettings({...settings, cdnUploaders: e.currentTarget.value})}>
+                <input value={settings.cdnUploaders}/>
+              </Input>
+            </Form.Field>
+            <Form.Field>
+              <label>CDN Downloaders</label>
+              <p>Every email you add to this comma-separated list <strong>(no spaces)</strong> will have <strong>download files and folders from the storage bucket</strong>.They will be able to sign into this dashboard with their Google account.</p>
+              <Input onChange={e => setSettings({...settings, cdnDownloaders: e.currentTarget.value})}>
+                <input value={settings.cdnDownloaders}/>
+              </Input>
+            </Form.Field>
           </Form>
         </Modal.Content>
         <Modal.Actions>

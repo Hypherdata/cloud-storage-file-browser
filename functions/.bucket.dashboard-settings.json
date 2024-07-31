@@ -1,0 +1,8 @@
+{
+  "defaultPublicFiles": false,
+  "privateUrlExpiration": 7,
+  "cdnAdmins": "admin@hypherdata.com,jana@hypherdata.com,veronika@hypherdata.com,mirek@hypherdata.com",
+  "useSettings": true,
+  "cdnUploaders": "labelmydata@gmail.com,md.sanaullah@a2i.gov.bd,sanaullah.labelmydata@gmail.com",
+  "cdnDownloaders": ""
+}

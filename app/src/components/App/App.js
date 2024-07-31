@@ -23,15 +23,22 @@ function App() {
   const [folderCreatorOpen, setFolderCreatorOpen] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
 
-  return (
+  const isAdmin = (settings) => { settings.cdnAdmins.includes(profile.email) }
+  const isUploader = (settings) => { settings.cdnUploaders.includes(profile.email) }
+  const isDownloader = (settings) => { settings.cdnDownloaders.includes(profile.email) }
+
+
+    return (
     <div className="App">
       <nav>
-        <Sidebar
-          profile={profile}
-          openFileUpload={() => setFileUploadOpen(true)}
-          openFolderCreator={() => setFolderCreatorOpen(true)}
-          openSettings={() => setSettingsOpen(true)}
-        />
+          { profile.role !== 'user' &&
+              <Sidebar
+                  profile={profile}
+                  openFileUpload={() => setFileUploadOpen(true)}
+                  openFolderCreator={() => setFolderCreatorOpen(true)}
+                  openSettings={() => setSettingsOpen(true)}
+            />
+          }
       </nav>
         <GoogleOAuthProvider clientId={config.googleClientId}>
       <Auth setIdToken={(t) => {
@@ -39,13 +46,20 @@ function App() {
         setIdToken(t)
       }} setProfile={setProfile}/>
       <section className='app-content'>
-        <FileExplorer
+        { profile.role !== 'user' &&  <FileExplorer
           idToken={idToken}
           profile={profile}
           setExplorerPath={setExplorerPath}
           doRefresh={doRefresh}
           didRefresh={() => refreshExplorer(false)}
         />
+        }
+        { profile.role === 'user' &&
+          <div>
+            You need to be authorized by HD team please lets as know via email on admin@hypherdata.com
+            Name: {profile.name} - Role: {profile.role}
+          </div>
+        }
       </section>
       <FileUploadModal
         open={fileUploadOpen}

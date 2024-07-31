@@ -63,6 +63,13 @@ export default {
     }, reqConfig(this))
       .then(res => res.data)
   },
+  renameFolder (filepath, destination) {
+    return axios.post('/rename-folder', {
+      filepath,
+      destination
+    }, reqConfig(this))
+        .then(res => res.data)
+  },
   getNewUploadPolicy (filepath, fileContentType, fileSize) {
     return axios.post('/get-new-upload-policy', {
       filepath,

@@ -10,7 +10,9 @@ console.log(process.env);
 const DEFAULT_SETTINGS = {
   defaultPublicFiles: false,
   privateUrlExpiration: 7,
-  cdnAdmins: ''
+  cdnAdmins: 'mirek@hypherdata.com',
+  cdnUploaders: '',
+  cdnDownloaders: ''
 };
 
 const bucket = new Storage().bucket(process.env.CDN_BUCKET_NAME);
@@ -186,6 +188,27 @@ async function downloadFolder(folderPath) {
   return passThrough;
 }
 
+async function renameFolder(oldFolderName, newFolderName) {
+  if (!oldFolderName.endsWith('/')) oldFolderName += '/';
+  if (!newFolderName.endsWith('/')) newFolderName += '/';
+
+  const [files] = await bucket.getFiles({ prefix: oldFolderName });
+
+  const movePromises = files.map(file => {
+    const newName = file.name.replace(oldFolderName, newFolderName);
+    return file.move(newName);
+  });
+
+  try {
+    await Promise.all(movePromises);
+    console.log(`Successfully renamed folder from ${oldFolderName} to ${newFolderName}`);
+    return true;
+  } catch (error) {
+    console.error('Error renaming folder:', error);
+    return false;
+  }
+}
+
 functions.http('cloud-storage-file-browser-api', async (req, res) => {
   res.set('Access-Control-Allow-Origin', '*');
   res.set('Access-Control-Allow-Credentials', 'true');
@@ -242,6 +265,21 @@ functions.http('cloud-storage-file-browser-api', async (req, res) => {
 
         downloadStream.pipe(res);
         return res;
+
+      case 'POST /rename-folder':
+        const { oldFolderName, newFolderName } = req.body;
+
+        if (!oldFolderName || !newFolderName) {
+          return res.status(400).json({ error: 'Both oldFolderName and newFolderName are required' });
+        }
+
+        const success = await renameFolder(oldFolderName, newFolderName);
+
+        if (success) {
+          res.status(200).json({ message: 'Folder renamed successfully' });
+        } else {
+          res.status(500).json({ error: 'Failed to rename folder' });
+        }
 
       // case 'POST /set-public':
       //   await bucket.file(req.body.filepath).makePublic();

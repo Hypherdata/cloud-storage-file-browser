@@ -4,7 +4,7 @@ import { Card, List, Button, Icon, Dropdown, Checkbox, Dimmer } from 'semantic-u
 import { getIconByMIMEType } from '../../util/fileutil'
 import TiffThumbnail from './TiffThumbnail';
 
-const FileCard = ({ cardType, isFolder, path, name, size, fileType, lastMod, isDimmed, checkIsPublic, onDelete, onRename, onMove, onClickItem, onDownload, onSetPublic, isAdmin = false}) => {
+const FileCard = ({ cardType, isFolder, path, name, size, fileType, lastMod, isDimmed, checkIsPublic, onDelete, onRename, onMove, onClickItem, onDownload, onSetPublic, isDownloader = false, isUploader = false, isAdmin = false}) => {
   const [isPublic, setIsPublic] = useState(false)
 
   const fileIcon = getIconByMIMEType(fileType, isFolder)
@@ -24,13 +24,12 @@ const FileCard = ({ cardType, isFolder, path, name, size, fileType, lastMod, isD
             <List.Header><a href='#' onClick={onClickItem}>{name}</a>
               <Dropdown onClick={async () => setIsPublic(await checkIsPublic())}>
                 <Dropdown.Menu>
-                  <Dropdown.Item icon='cloud download' text='Download' disabled={!isFolder} onClick={() => onDownload(isPublic)} />
-                  <Dropdown.Item icon='download' text='Download' disabled={isFolder} onClick={() => onDownload(isPublic)} />
+                  {(isDownloader || isAdmin) && <Dropdown.Item icon='download' text='Download' disabled={isFolder} onClick={() => onDownload(isPublic)} />}
                   {/*<Dropdown.Item icon={isPublic ? 'lock' : 'unlock'} text={isPublic ? 'Make private' : 'Make public'} disabled={isFolder} onClick={() => {onSetPublic(!isPublic)}}/>*/}
                   <Dropdown.Divider/>
-                  {isAdmin && <Dropdown.Item icon='arrow right' text='Move' disabled={isFolder} onClick={onMove} />}
-                  {isAdmin && <Dropdown.Item icon='edit' text='Rename' disabled={isFolder} onClick={onRename} />}
-                  {isAdmin && <Dropdown.Item icon='trash' text='Delete' onClick={onDelete} />}
+                  {(isAdmin) && <Dropdown.Item icon='arrow right' text='Move' disabled={isFolder} onClick={onMove} />}
+                  {(isAdmin) && <Dropdown.Item icon='edit' text='Rename' disabled={isFolder} onClick={onRename} />}
+                  {(isAdmin) && <Dropdown.Item icon='trash' text='Delete' onClick={onDelete} />}
                 </Dropdown.Menu>
               </Dropdown>
             </List.Header>

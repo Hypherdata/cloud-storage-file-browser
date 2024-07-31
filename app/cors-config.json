@@ -1,6 +1,6 @@
 [
   {
-    "origin": ["*", "cloud-storage-file-browser.hypherdata.com" ],
+    "origin": ["*", "cloud-storage-file-browser.hypherdata.com", "localhost:3000", "localhost:8080" ],
     "responseHeader": ["Content-Type", "Authorization"],
     "method": ["GET", "HEAD", "DELETE", "PUT", "POST"],
     "maxAgeSeconds": 3600

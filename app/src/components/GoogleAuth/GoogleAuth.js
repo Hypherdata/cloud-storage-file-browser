@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { GoogleLogin } from '@react-oauth/google';
 import { Header, Icon, Modal, Message } from 'semantic-ui-react';
 import  * as jwtDecode  from 'jwt-decode';
+import api from "../../api/storage";
 
 const GoogleAuth = ({ setIdToken, setProfile }) => {
   const [open, setOpen] = useState(true);
@@ -11,11 +12,17 @@ const GoogleAuth = ({ setIdToken, setProfile }) => {
     const credentialResponseDecoded = jwtDecode.jwtDecode(credentialResponse.credential);
     console.log(credentialResponseDecoded);
     setIdToken(credentialResponse.credential);
-    setProfile({
-      name: credentialResponseDecoded.name,
-      imageUrl: credentialResponseDecoded.picture,
-      email: credentialResponseDecoded.email
-    });
+
+    api.getSettings().then(settings => {
+      setProfile({
+        name: credentialResponseDecoded.name,
+        imageUrl: credentialResponseDecoded.picture,
+        email: credentialResponseDecoded.email,
+        role:  settings.cdnAdmins.includes(credentialResponseDecoded.email) ? 'admin' :
+            settings.cdnUploaders.includes(credentialResponseDecoded.email) ? 'uploader' :
+                settings.cdnDownloaders.includes(credentialResponseDecoded.email) ? 'downloader' : 'user'
+      });
+    })
     setOpen(false);
   };
 

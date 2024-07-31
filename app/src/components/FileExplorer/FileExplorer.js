@@ -35,6 +35,8 @@ const FileExplorer = ({ idToken, profile, setExplorerPath, doRefresh, didRefresh
   const [fileToMove, setFileToMove] = useState({})
   const [fileMoveDestination, setFileMoveDestination] = useState({})
 
+  const [settings, setSettings] = useState({})
+
   const setPath = (p) => { setPathState(p); setExplorerPath(p); }
 
   const filesInPath = (p = path, ignoreFileStructure) => files // Files and folders in current path, excluding full path in names, sorted with folders first.
@@ -75,6 +77,12 @@ const FileExplorer = ({ idToken, profile, setExplorerPath, doRefresh, didRefresh
     // When idToken and doRefresh are set, refresh the files
     if (!idToken || idToken.length < 3 || !doRefresh) return
     setState({...state, loading: true})
+
+    api.getSettings().then(settings => {
+      setSettings(settings)
+    }).catch((e) => {
+      console.error('Error getting settings', e)
+    })
 
     getFiles(path)
     didRefresh()
@@ -146,11 +154,29 @@ const FileExplorer = ({ idToken, profile, setExplorerPath, doRefresh, didRefresh
       })
   };
 
-  const fileCards = () => {
+  const [renamingFolder, setRenamingFolder] = useState(null);
+  const [newFolderName, setNewFolderName] = useState('');
+
+  const renameFolder = async (oldFolderName, newFolderName) => {
+      api.renameFolder(oldFolderName, newFolderName)
+          .then(data => {
+              if (!data.success) return Promise.reject()
+              toast.dark('🚚 Folder renamed!')
+              console.log('Folder renamed successfully', data);
+              getFiles(path)
+          })
+          .catch(() => toast.dark(`❗ Couldn't rename folder.`))
+      setNewFolderName(null)
+      setRenamingFolder(null)
+  };
+
+    const fileCards = () => {
     return filesInPath(path, ignoringFileStructure).map((file) => (
             <FileCard
                 key={file.id}
-                isAdmin={profile.email.includes("admin@hypherdata.com")}
+                isAdmin={profile.role === 'admin'}
+                isUploader={profile.role === 'uploader'}
+                isDownloader={profile.role === 'downloader'}
                 cardType={view}
                 fileType={file.contentType}
                 isFolder={file.isFolder}

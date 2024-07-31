@@ -93,9 +93,9 @@ const FileUploadModal = ({ open, closeModal, path, onSuccess }) => {
 
         dispatch({ type: 'addUploadedAmount', amount: file.size || 0}) // File was successfully uploaded, add its size to the counter.
 
-        dispatch({ type: 'setStatus', status: `Setting file ${shouldBePublic ? 'public' : 'private'}...` })
-        await api.setPublicOrPrivate(file.name, shouldBePublic)
-          .catch(err => handleStepFail(err, `Unable to make file ${i+1} ${shouldBePublic ? 'public' : 'private'}`))
+        // dispatch({ type: 'setStatus', status: `Setting file ${shouldBePublic ? 'public' : 'private'}...` })
+        // await api.setPublicOrPrivate(file.name, shouldBePublic)
+        //   .catch(err => handleStepFail(err, `Unable to make file ${i+1} ${shouldBePublic ? 'public' : 'private'}`))
 
         if (i === state.files.length - 1) { // If that was the last file
           toast.dark("🚀 All files uploaded!")
