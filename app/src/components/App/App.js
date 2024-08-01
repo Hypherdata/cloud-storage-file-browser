@@ -23,11 +23,6 @@ function App() {
   const [folderCreatorOpen, setFolderCreatorOpen] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
 
-  const isAdmin = (settings) => { settings.cdnAdmins.includes(profile.email) }
-  const isUploader = (settings) => { settings.cdnUploaders.includes(profile.email) }
-  const isDownloader = (settings) => { settings.cdnDownloaders.includes(profile.email) }
-
-
     return (
     <div className="App">
       <nav>

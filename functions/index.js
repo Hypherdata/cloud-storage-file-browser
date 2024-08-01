@@ -10,7 +10,7 @@ console.log(process.env);
 const DEFAULT_SETTINGS = {
   defaultPublicFiles: false,
   privateUrlExpiration: 7,
-  cdnAdmins: 'mirek@hypherdata.com',
+  cdnAdmins: '',
   cdnUploaders: '',
   cdnDownloaders: ''
 };
@@ -19,7 +19,8 @@ const bucket = new Storage().bucket(process.env.CDN_BUCKET_NAME);
 const CDN_URL = process.env.CDN_URL || null;
 const DASHBOARD_ORIGIN = process.env.DASHBOARD_ORIGIN || '*';
 let CDN_ADMINS = [process.env.CDN_ADMIN];
-let CDN_USERS = [process.env.CDN_USERS];
+let CDN_UPLOADERS = [process.env.CDN_UPLOADERS];
+let CDN_DOWNLOADERS = [process.env.CDN_DOWNLOADERS];
 let PRIVATE_URL_EXPIRY_DAYS = DEFAULT_SETTINGS.privateUrlExpiration;
 
 async function getUserSettings() {
@@ -33,6 +34,11 @@ async function updateWithUserSettings() {
   PRIVATE_URL_EXPIRY_DAYS = userSettings.privateUrlExpiration;
   CDN_ADMINS = [process.env.CDN_ADMIN];
   CDN_ADMINS.push(...userSettings.cdnAdmins.split(','));
+  CDN_UPLOADERS = [process.env.CDN_UPLOADERS];
+  CDN_UPLOADERS.push(...userSettings.cdnUploaders.split(','));
+  CDN_DOWNLOADERS = [process.env.CDN_DOWNLOADERS];
+  CDN_DOWNLOADERS.push(...userSettings.cdnDownloaders.split(','));
+  console.log(userSettings);
 }
 
 let CorsAlreadyChecked = false;
@@ -70,12 +76,19 @@ async function auth(req) {
 
     console.log("userEmail:", userEmail);
     console.log("CDN_ADMINS:", CDN_ADMINS);
-    console.log("CDN_USERS:", CDN_USERS);
     console.log("CDN_ADMINS.includes(userEmail):", CDN_ADMINS.includes(userEmail));
-    console.log("CDN_USERS.includes(userEmail):", CDN_USERS.includes(userEmail));
+    console.log("CDN_UPLOADERS:", CDN_UPLOADERS);
+    console.log("CDN_UPLOADERS.includes(userEmail):", CDN_UPLOADERS.includes(userEmail));
+    console.log("CDN_DOWNLOADERS:", CDN_DOWNLOADERS);
+    console.log("CDN_DOWNLOADERS.includes(userEmail):", CDN_DOWNLOADERS.includes(userEmail));
 
-    if (!CDN_ADMINS.includes(userEmail) && !CDN_USERS.includes(userEmail)) throw new Error("Unauthorized not included in CDN_ADMINS or CDN_USERS");
+    console.log("!CDN_ADMINS.includes(userEmail)",!CDN_ADMINS.includes(userEmail))
+    console.log("!CDN_UPLOADERS.includes(userEmail)",!CDN_UPLOADERS.includes(userEmail))
+    console.log("!CDN_DOWNLOADERS.includes(userEmail)",!CDN_DOWNLOADERS.includes(userEmail));
 
+    if (!CDN_ADMINS.includes(userEmail) && !CDN_UPLOADERS.includes(userEmail) && !CDN_DOWNLOADERS.includes(userEmail)) throw new Error("Unauthorized not included in CDN_ADMINS or CDN_DOWNLOADERS or CDN_DOWNLOADERS");
+
+    console.log("end auth");
 
     return userEmail;
   } catch (err) {
@@ -320,7 +333,6 @@ functions.http('cloud-storage-file-browser-api', async (req, res) => {
         return res.json({ url: response.url, fields: response.fields });
 
       case 'POST /add-folder':
-        if (!CDN_ADMINS.includes(userEmail)) return res.status(403).json({ error: 'unauthorized' });
         const newFolder = bucket.file(req.body.folderpath + '/');
         const [exists] = await newFolder.exists();
         if (exists) return res.status(409).json({ error: 'file-exists' });
@@ -342,7 +354,6 @@ functions.http('cloud-storage-file-browser-api', async (req, res) => {
         return res.json({ success: true });
 
       case 'GET /get-settings':
-        if (!CDN_ADMINS.includes(userEmail)) return res.status(403).json({ error: 'unauthorized' });
         return res.json({ settings: await getUserSettings() });
 
       case 'POST /save-settings':

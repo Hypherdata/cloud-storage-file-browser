@@ -14,13 +14,14 @@ const GoogleAuth = ({ setIdToken, setProfile }) => {
     setIdToken(credentialResponse.credential);
 
     api.getSettings().then(settings => {
+      console.log(credentialResponseDecoded);
       setProfile({
         name: credentialResponseDecoded.name,
         imageUrl: credentialResponseDecoded.picture,
         email: credentialResponseDecoded.email,
         role:  settings.cdnAdmins.includes(credentialResponseDecoded.email) ? 'admin' :
-            settings.cdnUploaders.includes(credentialResponseDecoded.email) ? 'uploader' :
-                settings.cdnDownloaders.includes(credentialResponseDecoded.email) ? 'downloader' : 'user'
+               settings.cdnUploaders.includes(credentialResponseDecoded.email) ? 'uploader' :
+               settings.cdnDownloaders.includes(credentialResponseDecoded.email) ? 'downloader' : 'uploader'
       });
     })
     setOpen(false);

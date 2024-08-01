@@ -4,6 +4,8 @@ import config from '../../config'
 
 export default ({ profile, openFileUpload, openFolderCreator, openSettings }) => {
 
+  console.log(profile)
+
   const signOut = () => {
     window.gapi.auth2.getAuthInstance().signOut()
     localStorage.clear()
@@ -20,6 +22,7 @@ export default ({ profile, openFileUpload, openFolderCreator, openSettings }) =>
       width='thin'
     >
       <Header as='h4' color='grey' style={{ margin: '10px auto' }}>{ config.appName }</Header>
+      <Header as='h4' color='grey' style={{ margin: '10px auto' }}>{ config.configVersion}</Header>
       <Header as='h5' color='grey' style={{ margin: '10px auto' }}>{ profile.role }</Header>
       <Image src={profile.imageUrl} avatar/>
       <Header as='h5' color='grey' style={{ margin: '10px auto' }}>{ profile.name }</Header>
