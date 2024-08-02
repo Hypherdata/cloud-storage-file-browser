@@ -21,7 +21,7 @@ const GoogleAuth = ({ setIdToken, setProfile }) => {
         email: credentialResponseDecoded.email,
         role:  settings.cdnAdmins.includes(credentialResponseDecoded.email) ? 'admin' :
                settings.cdnUploaders.includes(credentialResponseDecoded.email) ? 'uploader' :
-               settings.cdnDownloaders.includes(credentialResponseDecoded.email) ? 'downloader' : 'uploader'
+               settings.cdnDownloaders.includes(credentialResponseDecoded.email) ? 'downloader' : 'user'
       });
     })
     setOpen(false);

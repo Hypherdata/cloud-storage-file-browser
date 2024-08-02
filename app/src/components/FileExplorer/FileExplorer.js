@@ -98,6 +98,7 @@ const FileExplorer = ({ idToken, profile, setExplorerPath, doRefresh, didRefresh
     setDeletionState({...deletionState, saving: true})
     api.deleteFile(deletionState.file)
         .then((res) => {
+          console.log(res)
           toast.dark(`✔️ ${deletionState.isFolder ? 'Folder' : 'File'} deleted`)
           if (res.data.deleted) setDeletionState({...deletionState, open: false, error: false, saving: false})
           getFiles(path)
@@ -186,8 +187,7 @@ const FileExplorer = ({ idToken, profile, setExplorerPath, doRefresh, didRefresh
                 size={formatBytes(file.size)}
                 isDimmed={!!fileToMove.path && !file.isFolder}
                 onDelete={() => {
-                  // If the folder isn't empty then don't delete (TODO recursive folder deletion)
-                  if (file.isFolder && filesInPath(file.path.split('/').slice(0, -1)).length) return toast.dark('❌ You must delete all files from this folder first.')
+                  //if (file.isFolder && filesInPath(file.path.split('/').slice(0, -1)).length) return toast.dark('❌ You must delete all files from this folder first.')
                   setDeletionState({...deletionState, open: true, file: file.path, isFolder: file.isFolder})
                 }}
                 onRename={() => { setFileToRename(file); setRenameInputValue(file.name);}}
@@ -344,6 +344,7 @@ const FileExplorer = ({ idToken, profile, setExplorerPath, doRefresh, didRefresh
           </Header>
           <Modal.Content>
             <p style={{textAlign: 'center'}}>Are you sure you want to delete <span style={{ color: 'orange', fontWeight: 'bold'}}>{deletionState.file}</span>?
+              {deletionState.isFolder && ' This will delete all files and folders inside it.❗'}
             </p>
             { deletionState.error && <p style={{textAlign: 'center', color: 'red'}}>Something went wrong and we couldn't delete that file.</p>}
           </Modal.Content>

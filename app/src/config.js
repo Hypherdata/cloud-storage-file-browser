@@ -6,5 +6,5 @@ export default {
   CDN_URL: 'https://cloud-storage-file-browser.hypherdata.com', // The base URL to your CDN or bucket. This might be a custom subdomain or https://bucket-name.storage.googleapis.com/ if you don't have a CDN.
   BucketUrl: 'https://storage.googleapis.com/hd-cloud-storage-file-browser', // This is used to bypass the cache on your CDN. ONLY replace the YOUR-BUCKET-NAME part with the name of your bucket.
   appName: 'Hypherdata.com - File Exchange', // The name that appears at the top of the app menu.
-  configVersion: 'v1.0.0' // The version of the config file. This is used to determine if the user's settings need to be updated."
+  configVersion: 'v1.0.2' // The version of the config file. This is used to determine if the user's settings need to be updated."
 }

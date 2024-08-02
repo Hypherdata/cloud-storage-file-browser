@@ -222,6 +222,16 @@ async function renameFolder(oldFolderName, newFolderName) {
   }
 }
 
+// Add this new function for recursive deletion
+async function deleteFilesRecursively(folderPath) {
+  const [files] = await bucket.getFiles({ prefix: folderPath });
+  const deletePromises = files.map(file => {
+    console.log("deleting file:", file.name);
+    file.delete()
+  });
+  await Promise.all(deletePromises);
+}
+
 functions.http('cloud-storage-file-browser-api', async (req, res) => {
   res.set('Access-Control-Allow-Origin', '*');
   res.set('Access-Control-Allow-Credentials', 'true');
@@ -341,8 +351,16 @@ functions.http('cloud-storage-file-browser-api', async (req, res) => {
 
       case 'POST /delete-file':
         if (!CDN_ADMINS.includes(userEmail)) return res.status(403).json({ error: 'unauthorized' });
-        await bucket.file(req.body.filepath).delete();
-        return res.json({ deleted: true });
+        const filePath = req.body.filepath;
+        const isFolder = filePath.endsWith('/');
+        if (isFolder) {
+          console.log("deleting files and folder:", filePath);
+          await deleteFilesRecursively(filePath);
+        } else {
+          console.log("deleting file:", filePath);
+          await bucket.file(filePath).delete();
+        }
+        return res.json({ deleted: true, success: true });
 
       case 'POST /move-file':
         if (!CDN_ADMINS.includes(userEmail)) return res.status(403).json({ error: 'unauthorized' });
