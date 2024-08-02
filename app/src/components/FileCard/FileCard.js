@@ -28,7 +28,7 @@ const FileCard = ({ cardType, isFolder, path, name, size, fileType, lastMod, isD
                   {/*<Dropdown.Item icon={isPublic ? 'lock' : 'unlock'} text={isPublic ? 'Make private' : 'Make public'} disabled={isFolder} onClick={() => {onSetPublic(!isPublic)}}/>*/}
                   <Dropdown.Divider/>
                   {(isAdmin) && <Dropdown.Item icon='arrow right' text='Move' disabled={isFolder} onClick={onMove} />}
-                  {(isAdmin) && <Dropdown.Item icon='edit' text='Rename' disabled={isFolder} onClick={onRename} />}
+                  {(isAdmin) && <Dropdown.Item icon='edit' text='Rename' onClick={onRename} />}
                   {(isAdmin) && <Dropdown.Item icon='trash' text='Delete' onClick={onDelete} />}
                 </Dropdown.Menu>
               </Dropdown>

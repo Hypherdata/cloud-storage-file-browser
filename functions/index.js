@@ -205,6 +205,8 @@ async function renameFolder(oldFolderName, newFolderName) {
   if (!oldFolderName.endsWith('/')) oldFolderName += '/';
   if (!newFolderName.endsWith('/')) newFolderName += '/';
 
+  console.log(`Renaming folder from ${oldFolderName} to ${newFolderName}`);
+
   const [files] = await bucket.getFiles({ prefix: oldFolderName });
 
   const movePromises = files.map(file => {
@@ -290,18 +292,16 @@ functions.http('cloud-storage-file-browser-api', async (req, res) => {
         return res;
 
       case 'POST /rename-folder':
-        const { oldFolderName, newFolderName } = req.body;
 
-        if (!oldFolderName || !newFolderName) {
-          return res.status(400).json({ error: 'Both oldFolderName and newFolderName are required' });
+        const { oldFolderPath, newFolderPath } = req.body;
+        if (!oldFolderPath || !newFolderPath) {
+          return res.status(400).json({ error: 'Both oldFolderPath and newFolderPath are required' });
         }
-
-        const success = await renameFolder(oldFolderName, newFolderName);
-
+        const success = await renameFolder(oldFolderPath, newFolderPath);
         if (success) {
-          res.status(200).json({ message: 'Folder renamed successfully' });
+          return res.status(200).json({ success: true, message: 'Folder renamed successfully' });
         } else {
-          res.status(500).json({ error: 'Failed to rename folder' });
+          return res.status(500).json({ error: 'Failed to rename folder' });
         }
 
       // case 'POST /set-public':
@@ -385,7 +385,7 @@ functions.http('cloud-storage-file-browser-api', async (req, res) => {
     }
   } catch (err) {
     console.error(new Error(err));
-    return res.status(500).send('API Error');
+    return res.status(500).send(`API Error: ${err}`);
   }
 });
 

@@ -104,6 +104,7 @@ const FileExplorer = ({ idToken, profile, setExplorerPath, doRefresh, didRefresh
           getFiles(path)
         })
         .catch((err) => {
+          console.error(err)
           setDeletionState({...deletionState, error: true, saving: false})
         })
   }
@@ -158,15 +159,20 @@ const FileExplorer = ({ idToken, profile, setExplorerPath, doRefresh, didRefresh
   const [renamingFolder, setRenamingFolder] = useState(null);
   const [newFolderName, setNewFolderName] = useState('');
 
-  const renameFolder = async (oldFolderName, newFolderName) => {
-      api.renameFolder(oldFolderName, newFolderName)
+  const renameFolder = async () => {
+    const oldFolderPath = renamingFolder.path;
+    const newFolderPath = newFolderName
+
+    console.log('Renaming folder', oldFolderPath, '->', newFolderPath);
+
+    api.renameFolder(oldFolderPath, newFolderPath)
           .then(data => {
               if (!data.success) return Promise.reject()
               toast.dark('🚚 Folder renamed!')
               console.log('Folder renamed successfully', data);
               getFiles(path)
           })
-          .catch(() => toast.dark(`❗ Couldn't rename folder.`))
+          .catch((error) => toast.dark(`❗ Couldn't rename folder. Error:`, error))
       setNewFolderName(null)
       setRenamingFolder(null)
   };
@@ -190,7 +196,15 @@ const FileExplorer = ({ idToken, profile, setExplorerPath, doRefresh, didRefresh
                   //if (file.isFolder && filesInPath(file.path.split('/').slice(0, -1)).length) return toast.dark('❌ You must delete all files from this folder first.')
                   setDeletionState({...deletionState, open: true, file: file.path, isFolder: file.isFolder})
                 }}
-                onRename={() => { setFileToRename(file); setRenameInputValue(file.name);}}
+                onRename={() => {
+                  if (file.isFolder) {
+                    setRenamingFolder(file);
+                    setNewFolderName(file.path);
+                  } else {
+                    setFileToRename(file);
+                    setRenameInputValue(file.name);
+                  }
+                }}
                 onMove={() => { setFileToMove(file); setFileMoveDestination({}); }}
                 onClickItem={async () => {
                   if (!!fileToMove.path) setFileMoveDestination(file) // The user is selecting a folder to move the file to
@@ -378,6 +392,31 @@ const FileExplorer = ({ idToken, profile, setExplorerPath, doRefresh, didRefresh
             <Button color='violet' onClick={renameFile}>
               <Icon name='checkmark' />
               Rename
+            </Button>
+          </Modal.Actions>
+        </Modal>
+
+        {/* Rename Folder Modal */}
+        <Modal open={!!renamingFolder} onClose={() => { setRenamingFolder(null); setNewFolderName(''); }} size='mini'>
+          <Header icon='folder' content='Rename Folder' />
+          <Modal.Content>
+            <Form as='div'>
+              <Form.Field>
+                <label>New folder name:</label>
+                <input
+                  placeholder='New folder name'
+                  value={newFolderName}
+                  onChange={e => setNewFolderName(e.target.value)}
+                />
+              </Form.Field>
+            </Form>
+          </Modal.Content>
+          <Modal.Actions>
+            <Button basic color='red' onClick={() => { setRenamingFolder(null); setNewFolderName(''); }}>
+              Cancel
+            </Button>
+            <Button color='green' onClick={renameFolder}>
+              <Icon name='checkmark' /> Rename
             </Button>
           </Modal.Actions>
         </Modal>

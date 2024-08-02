@@ -63,10 +63,10 @@ export default {
     }, reqConfig(this))
       .then(res => res.data)
   },
-  renameFolder (filepath, destination) {
+  renameFolder ( oldFolderPath, newFolderPath) {
     return axios.post('/rename-folder', {
-      filepath,
-      destination
+      oldFolderPath,
+      newFolderPath
     }, reqConfig(this))
         .then(res => res.data)
   },
