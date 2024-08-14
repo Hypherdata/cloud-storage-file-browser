@@ -2,7 +2,7 @@ import React from 'react'
 import { Header, Icon, Menu, Sidebar, Segment, Image } from 'semantic-ui-react'
 import config from '../../config'
 
-export default ({ profile, openFileUpload, openFolderCreator, openSettings }) => {
+export default ({ profile, openFileUpload, openFolderCreator, openSettings, openFileComparison }) => {
 
   console.log(profile)
 
@@ -48,6 +48,13 @@ export default ({ profile, openFileUpload, openFolderCreator, openSettings }) =>
             Options
           </Menu.Item>
       }
+      {(profile.role ==='admin') &&
+        <Menu.Item as='a' onClick={openFileComparison}>
+          <Icon name='compass' />
+          Options
+        </Menu.Item>
+      }
+
       <Menu.Item as='a' onClick={signOut}>
         <Icon name='sign-out' />
         Sign Out

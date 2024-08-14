@@ -4,6 +4,7 @@ const functions = require('@google-cloud/functions-framework');
 const path = require('path');
 const archiver = require('archiver');
 const stream = require('stream');
+const { findIdenticalFiles } = require('./gsc-file-comparison');
 
 console.log(process.env);
 
@@ -226,13 +227,50 @@ async function renameFolder(oldFolderName, newFolderName) {
 
 // Add this new function for recursive deletion
 async function deleteFilesRecursively(folderPath) {
-  const [files] = await bucket.getFiles({ prefix: folderPath });
-  const deletePromises = files.map(file => {
-    console.log("deleting file:", file.name);
-    file.delete()
-  });
-  await Promise.all(deletePromises);
+  try {
+    if (!folderPath) {
+      throw new Error('Folder path is required: ' + folderPath);
+    }
+
+    const totalDeleted = await deleteFilesInBatches(folderPath);
+
+    console.log("files deleted :", totalDeleted);
+    return totalDeleted;
+  } catch (error) {
+    console.error('Error deleting files recursively:', error);
+    throw error;
+  }
 }
+
+
+async function deleteFilesInBatches(prefix, batchSize = 1000) {
+  let pageToken;
+  let deletedCount = 0;
+
+  do {
+    const [files, nextPageToken] = await bucket.getFiles({
+      prefix: prefix,
+      maxResults: batchSize,
+      pageToken: pageToken,
+    });
+
+    if (files.length === 0) {
+      break;
+    }
+
+    const deletePromises = files.map(file => file.delete());
+    await Promise.all(deletePromises);
+
+    deletedCount += files.length;
+    pageToken = nextPageToken;
+
+    console.log(`Deleted ${deletedCount} files so far...`);
+  } while (pageToken);
+
+  return deletedCount;
+}
+
+let fileComparisonEmitter = null;
 
 functions.http('cloud-storage-file-browser-api', async (req, res) => {
   res.set('Access-Control-Allow-Origin', '*');
@@ -355,7 +393,8 @@ functions.http('cloud-storage-file-browser-api', async (req, res) => {
         const isFolder = filePath.endsWith('/');
         if (isFolder) {
           console.log("deleting files and folder:", filePath);
-          await deleteFilesRecursively(filePath);
+          const totalDeleted = await deleteFilesRecursively(filePath);
+          return res.json({ deleted: true, success: true, message: 'Deleted  deleted successfully files count:', totalDeleted });
         } else {
           console.log("deleting file:", filePath);
           await bucket.file(filePath).delete();
@@ -379,6 +418,48 @@ functions.http('cloud-storage-file-browser-api', async (req, res) => {
         await bucket.file('.bucket.dashboard-settings.json').save(JSON.stringify(req.body.settings));
         await updateWithUserSettings();
         return res.json({ success: true });
+
+      case 'POST /start-file-comparison':
+        if (!CDN_ADMINS.includes(userEmail)) return res.status(403).json({ error: 'unauthorized' });
+
+        const emitter = await findIdenticalFiles(process.env.CDN_BUCKET_NAME);
+        fileComparisonEmitter = emitter;
+
+        res.json({ message: 'File comparison started' });
+        break;
+
+      case 'GET /file-comparison-progress':
+        if (!fileComparisonEmitter) {
+          return res.status(400).json({ error: 'No file comparison in progress' });
+        }
+
+        // Set up SSE
+        res.writeHead(200, {
+          'Content-Type': 'text/event-stream',
+          'Cache-Control': 'no-cache',
+          'Connection': 'keep-alive'
+        });
+
+        const sendEvent = (event, data) => {
+          res.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`);
+        };
+
+        fileComparisonEmitter.on('progress', (progress) => {
+          sendEvent('progress', progress);
+        });
+
+        fileComparisonEmitter.on('complete', (result) => {
+          sendEvent('complete', result);
+          res.end();
+        });
+
+        // Clean up if client disconnects
+        req.on('close', () => {
+          fileComparisonEmitter.removeAllListeners();
+          fileComparisonEmitter = null;
+        });
+        break;
+
 
       default:
         return res.status(404).send('Route not found');

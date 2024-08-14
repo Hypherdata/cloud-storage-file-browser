@@ -1,5 +1,7 @@
 APP=cloud-storage-file-browser
 
+gcloud config set project hypherdata-cloud-prod
+
 # setup static ip
 gcloud compute addresses create $APP-address  --global
 

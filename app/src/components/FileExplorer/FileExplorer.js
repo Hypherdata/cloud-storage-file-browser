@@ -26,7 +26,8 @@ const FileExplorer = ({ idToken, profile, setExplorerPath, doRefresh, didRefresh
     saving: false,
     error: false,
     file: '',
-    isFolder: false
+    isFolder: false,
+    message: '',
   })
 
   const [fileToRename, setFileToRename] = useState({})
@@ -99,8 +100,8 @@ const FileExplorer = ({ idToken, profile, setExplorerPath, doRefresh, didRefresh
     api.deleteFile(deletionState.file)
         .then((res) => {
           console.log(res)
-          toast.dark(`✔️ ${deletionState.isFolder ? 'Folder' : 'File'} deleted`)
-          if (res.data.deleted) setDeletionState({...deletionState, open: false, error: false, saving: false})
+          toast.dark(`✔️ ${deletionState.isFolder ? 'Folder' : 'File'} deleted` +` ${deletionState.message ? res.data.message : ''}` )
+          if (res.data.deleted) setDeletionState({...deletionState, open: false, error: false, saving: false, message: res.data.message})
           getFiles(path)
         })
         .catch((err) => {

@@ -11,6 +11,7 @@ import SettingsModal from '../SettingsModal/SettingsModal'
 import api from '../../api/storage'
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import config from "../../config";
+import FileComparison from "../FileComparison/FileComparison";
 
 function App() {
   const [idToken, setIdToken] = useState('')
@@ -22,6 +23,7 @@ function App() {
   const [fileUploadOpen, setFileUploadOpen] = useState(false)
   const [folderCreatorOpen, setFolderCreatorOpen] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
+  const [fileComparisonOpen, setFileComparisonOpen] = useState(false)
 
     return (
     <div className="App">
@@ -32,6 +34,7 @@ function App() {
                   openFileUpload={() => setFileUploadOpen(true)}
                   openFolderCreator={() => setFolderCreatorOpen(true)}
                   openSettings={() => setSettingsOpen(true)}
+                  openFileComparison={() => setFileComparisonOpen(true)}
             />
           }
       </nav>
@@ -41,7 +44,7 @@ function App() {
         setIdToken(t)
       }} setProfile={setProfile}/>
       <section className='app-content'>
-        { profile.role !== 'user' &&  <FileExplorer
+        { profile.role !== 'user' &&  !fileComparisonOpen && <FileExplorer
           idToken={idToken}
           profile={profile}
           setExplorerPath={setExplorerPath}
@@ -54,6 +57,9 @@ function App() {
             You need to be authorized by HD team please lets as know via email on admin@hypherdata.com
             Name: {profile.name} - Role: {profile.role}
           </div>
+        }
+        { fileComparisonOpen && <FileComparison />
+
         }
       </section>
       <FileUploadModal

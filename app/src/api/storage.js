@@ -103,5 +103,33 @@ export default {
       settings
     }, reqConfig(this))
       .then(res => res.data)
+  },
+  startFileComparison() {
+    return axios.post('/start-file-comparison', {}, reqConfig(this))
+      .then(res => res.data);
+  },
+  getFileComparisonProgress() {
+    return new Promise((resolve, reject) => {
+      const eventSource = new EventSource('/file-comparison-progress', {
+        headers: {
+          'Authorization': `Bearer ${this.idToken}`
+        }
+      });
+      eventSource.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        resolve(data);
+      };
+
+      eventSource.onerror = (error) => {
+        eventSource.close();
+        reject(error);
+      };
+
+      eventSource.addEventListener('complete', (event) => {
+        const result = JSON.parse(event.data);
+        eventSource.close();
+        resolve({ complete: true, result });
+      });
+    });
   }
 }
