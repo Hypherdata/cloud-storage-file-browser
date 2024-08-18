@@ -1,0 +1,17 @@
+{
+  "name": "image-similarity-service",
+  "version": "1.0.0",
+  "main": "job-compare-images.js",
+  "dependencies": {
+    "@google-cloud/run": "^1.4.0",
+    "@google-cloud/storage": "^7.12.1",
+    "@google-cloud/vision": "^4.3.1",
+    "express": "^4.17.1",
+    "json2csv": "^5.0.6",
+    "p-limit": "^3.1.0",
+    "sharp": "^0.33.5"
+  },
+  "scripts": {
+    "start": "node job-compare-images.js"
+  }
+}
